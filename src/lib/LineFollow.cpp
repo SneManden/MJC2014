@@ -2,7 +2,7 @@
 
 
 // Constructor
-LineFollow::LineFollow(int ghost) {
+LineFollow::LineFollow() {
     proportional = 0;
     integral = 0;
     derivative = 0;

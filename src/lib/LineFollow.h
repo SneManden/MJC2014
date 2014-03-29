@@ -14,7 +14,7 @@ typedef struct _profile profile;
 
 class LineFollow {
     public: 
-        LineFollow(int ghost);
+        LineFollow();
         int getAdjustment(profile profile, int error);
     private:
         int proportional, integral, derivative;
