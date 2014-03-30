@@ -1,5 +1,7 @@
 BOARD_TAG = mega2560
-#MONITOR_PORT = /dev/ttyACM0
+MONITOR_PORT = /dev/ttyACM0
+
+ARDUINO_DIR = /usr/local/share/arduino
 
 USER_LIB_PATH := lib
 AVR_TOOLS_DIR=/usr
