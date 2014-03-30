@@ -1,58 +1,74 @@
 #include "IRSensor.h"
 
-#define NUMBEROFSENSORS 4
-#define MAXCONSECUTIVE 35
+// static int sensorHistory[2][35];//NUMBEROFSENSORS][MAXCONSECUTIVE];
 
-static bool sensorHistory[4][35];//NUMBEROFSENSORS][MAXCONSECUTIVE];
+#define SERIALDISABLEPIN 22
+#define sprint(X) do { if (!digitalRead(SERIALDISABLEPIN)) Serial.print(X); } while (0)
+#define sprintln(X) do { if (!digitalRead(SERIALDISABLEPIN)) Serial.println(X); } while (0)
 
 // Constructor
-SensorIR::SensorIR(int _limit) {//, int _numberOfSensors, int _maxConsecutive) {
+SensorIR::SensorIR(int _limit, int _numberOfSensors, int _maxConsecutive) {
     limit = _limit;
     target = (numberOfSensors-1)/2.0;
-    numberOfSensors = NUMBEROFSENSORS; //_numberOfSensors;
+    numberOfSensors = _numberOfSensors; //_numberOfSensors;
     // The number of consecutive readings
     // before some events are accepted
-    maxConsecutive = MAXCONSECUTIVE;//_maxConsecutive;
+    maxConsecutive = _maxConsecutive;//_maxConsecutive;
     consecutive = maxConsecutive;
     // Setup history arrays for each sensor
-    // sensorHistory = (bool **) malloc(
-    //     sizeof(bool) * _maxConsecutive * _numberOfSensors
-    // );
+    // sprintln("Trying to allocate memory for the history.");
+    // sprint("  need: ");
+    // sprint( sizeof(int) * maxConsecutive * numberOfSensors );
+    // sprintln(" bytes");
+    // sensorHistory = NULL;/*(int **) malloc(
+    //     sizeof(int) * maxConsecutive * numberOfSensors
+    // );*/
     // if (sensorHistory == NULL)
-    //     Serial.println("IT WAS NULL! MoTherh9uwer");
+    //     sprintln(" => Error allocating memory to history array");
 
     pivot = 0;
+}
+void SensorIR::init() {
+    sprintln("Trying to allocate memory for the history.");
+    sprint("  need: ");
+    sprint( sizeof(bool) * maxConsecutive * numberOfSensors );
+    sprintln(" bytes");
+    sensorHistory = (bool **) malloc(
+        sizeof(bool) * maxConsecutive * numberOfSensors
+    );
+    if (sensorHistory == NULL)
+        sprintln(" => Error allocating memory to history array");
+    else
+        sprintln(" => Succes: memory allocated");
 }
 int SensorIR::getError() {
     return target - getPosition();
 }
 
 void SensorIR::update() {
-    // Serial.println( sizeof(bool) );
-    // Serial.print("Sizeof bool * ...: ");
-    // Serial.println( sizeof(bool)*maxConsecutive*numberOfSensors );
-    // Serial.println(pivot);
-    Serial.println("Updating...");
-    if (pivot < 0 || pivot >= maxConsecutive) {
-        Serial.print("ERROR: pivot was ");
-        Serial.println(pivot);
+    if (pivot < 0 || pivot >= maxConsecutive)
         return;
-    }
+    bool val;
     for (int i=0; i<numberOfSensors; i++) {
-        Serial.print("sensorHistory[");
-        Serial.print(i);
-        Serial.print("][");
-        Serial.print(pivot);
-        Serial.print("] = ");
-        Serial.println(analogRead(i) > limit);
-        sensorHistory[i][pivot] = (bool) (analogRead(i) > limit);
+        val = (analogRead(i) > limit);
+        // sprint("val = ");
+        // sprint(val);
+        // sprint(" (analogRead: ");
+        // sprint(analogRead(i));
+        // sprint(")");
+        sensorHistory[i][pivot] = val;
+        // sprint(" => wrote ");
+        // sprint( sensorHistory[i][pivot] );
+        // sprint(" at index=");
+        // sprintln(pivot);
     }
-    // pivot = (pivot+1) % maxConsecutive;
-    Serial.println("Updating finished.");
+    pivot = (pivot+1) % maxConsecutive;
+    // sprint("pivot is now ");
+    // sprintln(pivot);
 }
 
 int SensorIR::getPosition() {
-    int val, total, sensorCount;
+    int total, sensorCount;
     total = sensorCount = 0;
     // For each sensor add sensornum to total
     for (int i=0; i<numberOfSensors; i++) {
@@ -91,7 +107,7 @@ int SensorIR::getCount() {
 // Returns true when the given sensor was ON consecutive number of times
 bool SensorIR::getCountConsecutive(int sensor) {
     //assert(sensor >= 0 && sensor < numberOfSensors);
-    bool consecutiveOn;
+    bool consecutiveOn = 1;
     for (int i=1; i<=consecutive; i++)
         consecutiveOn *= getHistory(sensor, i);
     return consecutiveOn;
@@ -103,11 +119,20 @@ bool SensorIR::getHistory(int sensor, int index) {
     //assert(index >= 1 && index <= consecutive);
     // return sensorHistory[sensor][0];
 
+    if (sensor < 0 || sensor >= numberOfSensors)
+        return 0;
+    if (index < 1 || index > consecutive)
+        return 0;
+
     int j;
     if (pivot - index < 0)
         j = maxConsecutive + (pivot - index);
     else
         j = pivot - index;
+    // sprint("reading at index ");
+    // sprint(j);
+    // sprint(" => ");
+    // sprintln(sensorHistory[sensor][j]);
     return sensorHistory[sensor][j];
 }
 

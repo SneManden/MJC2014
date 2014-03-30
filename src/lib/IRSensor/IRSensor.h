@@ -21,7 +21,7 @@
 
 class SensorIR {
     public:
-        SensorIR(int _limit);//, int _numberOfSensors, int _maxConsecutive);
+        SensorIR(int _limit, int _numberOfSensors, int _maxConsecutive);
         void update();
         int getPosition();
         int getError();
@@ -36,6 +36,8 @@ class SensorIR {
         void setTarget(int _target);
         int getConsecutive();
         bool setConsecutive(int _consecutive);
+        bool **sensorHistory;
+        void init();
     private:
         int limit;
         int pivot;
@@ -43,7 +45,6 @@ class SensorIR {
         int consecutive;
         int maxConsecutive;
         int numberOfSensors;
-        bool **sensorHistory;
 };
 
 #endif
