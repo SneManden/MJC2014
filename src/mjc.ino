@@ -1,6 +1,6 @@
-#include "lib/LineFollow.h"
-#include "lib/IRSensor.h"
-#include "lib/Motor.h"
+//#include "lib/LineFollow.h"
+#include <IRSensor.h>
+//#include "lib/Motor.h"
 // #include <string.h>
 // #include <SPI.h>
 // #include <Servo.h>
@@ -17,10 +17,10 @@
 // Encoder encoderRight(18, 19);
 SensorIR irSensor(LIMIT);//, NUMBEROFSENSORS, MAXCONSECUTIVE);
 // SensorUltraSonic ultraSonicSensor();
-LineFollow lf;
+//LineFollow lf;
 
 // Setup profiles
-profile defaultProfile;
+//profile defaultProfile;
 
 
 // MODES
@@ -39,9 +39,9 @@ int hasEvent();
 void setup() {
     Serial.begin(9600);
 
-    defaultProfile.kp = 1;
-    defaultProfile.ki = 0;
-    defaultProfile.kd = 0;
+    //defaultProfile.kp = 1;
+    //defaultProfile.ki = 0;
+    //defaultProfile.kd = 0;
 
     pinMode(13, OUTPUT);
 }
