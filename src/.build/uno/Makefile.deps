@@ -1,0 +1,22 @@
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+.build/uno/src/dependencies.d : 
+	@echo [96mScanning dependencies of src[0m
+	@mkdir -p .build/uno/src
+	@cat $^ > $@;
+
+all : .build/uno/src/dependencies.d
+	@true
+

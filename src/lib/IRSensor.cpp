@@ -1,18 +1,26 @@
 #include "IRSensor.h"
 
-#define ABEKAT 60000
+#define NUMBEROFSENSORS 4
+#define MAXCONSECUTIVE 35
+
+static bool sensorHistory[4][35];//NUMBEROFSENSORS][MAXCONSECUTIVE];
 
 // Constructor
-SensorIR::SensorIR(int _limit, int _numberOfSensors, int _maxConsecutive) {
+SensorIR::SensorIR(int _limit) {//, int _numberOfSensors, int _maxConsecutive) {
     limit = _limit;
     target = (numberOfSensors-1)/2.0;
-    numberOfSensors = _numberOfSensors;
+    numberOfSensors = NUMBEROFSENSORS; //_numberOfSensors;
     // The number of consecutive readings
     // before some events are accepted
-    maxConsecutive = _maxConsecutive;
-    consecutive = _maxConsecutive;
+    maxConsecutive = MAXCONSECUTIVE;//_maxConsecutive;
+    consecutive = maxConsecutive;
     // Setup history arrays for each sensor
-    sensorHistory[_numberOfSensors][_maxConsecutive];
+    // sensorHistory = (bool **) malloc(
+    //     sizeof(bool) * _maxConsecutive * _numberOfSensors
+    // );
+    // if (sensorHistory == NULL)
+    //     Serial.println("IT WAS NULL! MoTherh9uwer");
+
     pivot = 0;
 }
 int SensorIR::getError() {
@@ -20,17 +28,28 @@ int SensorIR::getError() {
 }
 
 void SensorIR::update() {
-    for (int i=0; i<numberOfSensors; i++) {
-        sensorHistory[i][pivot] = (analogRead(i) > limit);
-        pivot = pivot+1 % maxConsecutive;
+    // Serial.println( sizeof(bool) );
+    // Serial.print("Sizeof bool * ...: ");
+    // Serial.println( sizeof(bool)*maxConsecutive*numberOfSensors );
+    // Serial.println(pivot);
+    Serial.println("Updating...");
+    if (pivot < 0 || pivot >= maxConsecutive) {
+        Serial.print("ERROR: pivot was ");
+        Serial.println(pivot);
+        return;
     }
+    for (int i=0; i<numberOfSensors; i++) {
+        Serial.print("sensorHistory[");
+        Serial.print(i);
+        Serial.print("][");
+        Serial.print(pivot);
+        Serial.print("] = ");
+        Serial.println(analogRead(i) > limit);
+        sensorHistory[i][pivot] = (bool) (analogRead(i) > limit);
+    }
+    // pivot = (pivot+1) % maxConsecutive;
+    Serial.println("Updating finished.");
 }
-
-// val = analogRead(i);
-// if (val > limit) {
-//     total += i;
-//     sensorCount++;
-// }
 
 int SensorIR::getPosition() {
     int val, total, sensorCount;
@@ -46,8 +65,9 @@ int SensorIR::getPosition() {
 }
 
 int SensorIR::getEvent() {
-    for (int i=0; i<numberOfSensors; i++)
-        return getCountConsecutive(i);
+    return 0;
+    // for (int i=0; i<numberOfSensors; i++)
+    //     return getCountConsecutive(i);
     // (
     //     (
     //         (
@@ -64,7 +84,7 @@ int SensorIR::getEvent() {
 int SensorIR::getCount() {
     int count = 0;
     for (int i=0; i<numberOfSensors; i++)
-        count += sensorHistory[i][consecutive-1];
+        count += getHistory(i, consecutive); //sensorHistory[i][consecutive-1];
     return count;
 }
 
@@ -73,7 +93,7 @@ bool SensorIR::getCountConsecutive(int sensor) {
     //assert(sensor >= 0 && sensor < numberOfSensors);
     bool consecutiveOn;
     for (int i=1; i<=consecutive; i++)
-        consecutiveOn &= getHistory(sensor, i);
+        consecutiveOn *= getHistory(sensor, i);
     return consecutiveOn;
 }
 
@@ -81,6 +101,8 @@ bool SensorIR::getCountConsecutive(int sensor) {
 bool SensorIR::getHistory(int sensor, int index) {
     //assert(sensor >= 0 && sensor < numberOfSensors);
     //assert(index >= 1 && index <= consecutive);
+    // return sensorHistory[sensor][0];
+
     int j;
     if (pivot - index < 0)
         j = maxConsecutive + (pivot - index);

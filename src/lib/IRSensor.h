@@ -21,7 +21,7 @@
 
 class SensorIR {
     public:
-        SensorIR(int _limit, int _numberOfSensors, int _maxConsecutive);
+        SensorIR(int _limit);//, int _numberOfSensors, int _maxConsecutive);
         void update();
         int getPosition();
         int getError();
