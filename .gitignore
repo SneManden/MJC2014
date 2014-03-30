@@ -1,2 +1,2 @@
-.build/*
-src/build-*
+.build/
+src/build-mega2560/
