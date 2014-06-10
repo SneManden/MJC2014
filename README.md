@@ -2,6 +2,13 @@ MJC2014
 =======
 Repository for the Mechanical Journeying Construct anno 2014!
 
+Todo (HackAthon):
+	- Rewrite: Go pre-emptive all the way.
+	- Create a solid and extendable platform
+
+Feature request:
+	- Struct der holder status, så tilstand nemt kan genetableres (eksempelvis også i forbindelse med watchdog timer)
+
 License
 -------
 
